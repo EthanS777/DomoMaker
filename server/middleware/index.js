@@ -1,8 +1,8 @@
-const { makerPage } = require("../controllers/Domo");
+// const { makerPage } = require('../controllers/Domo');
 
 const requiresLogin = (req, res, next) => {
   if (!req.session.account) {
-    return res.redirect('/')
+    return res.redirect('/');
   }
   return next();
 };
@@ -29,8 +29,7 @@ module.exports.requiresLogin = requiresLogin;
 module.exports.requiresLogout = requiresLogout;
 
 if (process.env.NODE_ENV === 'production') {
-    module.exports.requiresSecure = requiresSecure;
-}
-else {
-    module.exports.requiresSecure = bypassSecure;
+  module.exports.requiresSecure = requiresSecure;
+} else {
+  module.exports.requiresSecure = bypassSecure;
 }
