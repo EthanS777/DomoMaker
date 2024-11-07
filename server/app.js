@@ -1,3 +1,4 @@
+require('dotenv').config();
 const path = require('path');
 const express = require('express');
 const compression = require('compression');
@@ -8,6 +9,8 @@ const expressHandlebars = require('express-handlebars');
 const helmet = require('helmet');
 const session = require('express-session');
 const router = require('./router.js');
+const RedisStore = require('connect-redis').default;
+const redis = require('redis');
 
 const port = process.env.PORT || process.env.NODE_PORT || 3000;
 
@@ -19,6 +22,15 @@ mongoose.connect(dbURI).catch((err) => {
   }
 });
 
+const redisClient = redis.createClient({
+  url: process.env.REDISCLOUD_URL
+});
+
+redisClient.on('error', err => console.log('Redis Client Error', err));
+
+// connect redis client: ALL CODE below moved into it
+redisClient.connect().then(() => {
+  
 const app = express();
 
 app.use(helmet());
@@ -30,6 +42,9 @@ app.use(bodyParser.json());
 
 app.use(session({
   key: 'sessionid',
+  store: new RedisStore({
+    client: redisClient
+  }),
   secret: 'Domo Arigato',
   resave: false,
   saveUninitialized: false,
@@ -46,4 +61,6 @@ app.listen(port, (err) => {
     throw err;
   }
   console.log(`Listening on port ${port}`);
+});
+
 });
